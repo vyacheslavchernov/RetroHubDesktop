@@ -30,6 +30,7 @@ public class RetroHubApp extends Application {
             controller.addElementToGamesListView(title);
         }
         controller.setSelectedGamesListViewElement(0);
+        controller.fillSettingsFromDB();
 
 
         primaryStage.setTitle("RetroHub");

@@ -4,8 +4,11 @@ import com.vych.api.RequestsApi;
 import com.vych.api.entities.Title;
 import com.vych.api.entities.TitleAbout;
 import com.vych.api.entities.TitleFullInfo;
+import com.vych.database.AppDatabase;
+import com.vych.database.accessors.SettingsAccessor;
 import com.vych.utils.RomsUtils;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,6 +20,8 @@ import javafx.stage.Stage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.vych.utils.SceneComponentsUtils.getListViewSelectedIndex;
 import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
@@ -29,8 +34,10 @@ public class MainSceneController {
 
     private int prevIndex = -1;
     private TitleFullInfo titleFullInfo = null;
+    private List<TextField> touchedFields = new ArrayList<>();
 
     // region: Scene components linking
+    // region:Library tab
     @FXML
     private ListView<Label> gamesListView;
 
@@ -57,7 +64,56 @@ public class MainSceneController {
 
     @FXML
     private TextArea descriptionArea;
+    // endregion:Library tab
+
+    // region:Settings tab
+    @FXML
+    private TextField repository_ip;
+    // endregion:Settings tab
+
     // endregion: Scene components linking
+
+    /**
+     * Get settings from local DB and put in fields on settings tab
+     */
+    @FXML
+    public void fillSettingsFromDB() {
+        repository_ip.setText(AppDatabase.getSettings().getString(SettingsAccessor.REPOSITORY_IP_SETTING));
+    }
+
+    /**
+     * Handle all changes fields in settings tab.
+     * Collect them for saving.
+     *
+     * @param e ..
+     */
+    @FXML
+    private void handleSettingsFields(Event e) {
+        TextField target = (TextField) e.getTarget();
+        if (!touchedFields.contains(target)) {
+            touchedFields.add(target);
+        }
+    }
+
+    /**
+     * Override all changes in fields on settings tab by data from local DB
+     */
+    @FXML
+    private void revertChanges() {
+        fillSettingsFromDB();
+        touchedFields.clear();
+    }
+
+    /**
+     * Save all changes in fields on settings tab to local DB
+     */
+    @FXML
+    private void saveChanges() {
+        for (TextField field : touchedFields) {
+            AppDatabase.getSettings().setString(field.getId(), field.getText());
+        }
+        touchedFields.clear();
+    }
 
     /**
      * Add item to {@link ListView} of available in repo games
