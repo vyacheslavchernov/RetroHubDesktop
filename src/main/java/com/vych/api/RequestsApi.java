@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vych.api.entities.Title;
 import com.vych.api.entities.TitleFullInfo;
+import com.vych.database.AppDatabase;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.vych.database.accessors.SettingsAccessor.REPOSITORY_IP_SETTING;
 import static com.vych.utils.FilesUtils.*;
 
 /**
@@ -19,7 +21,6 @@ import static com.vych.utils.FilesUtils.*;
  */
 // TODO: Subject to full rework
 public class RequestsApi {
-    private static final String DEDICATED_REPO_URL = "http://127.0.0.1:5000";
 
     /**
      * Get short information about ({@link Title}) all games existed in repository
@@ -28,7 +29,9 @@ public class RequestsApi {
      * @throws IOException ..
      */
     public static List<Title> getAllTitles() throws IOException {
-        String titlesJson = getJsonRequest(DEDICATED_REPO_URL + "/games/get_all_titles");
+        String titlesJson = getJsonRequest(
+                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) + "/games/get_all_titles"
+        );
         return new ObjectMapper().readValue(titlesJson, new TypeReference<List<Title>>() {
         });
     }
@@ -41,7 +44,9 @@ public class RequestsApi {
      * @throws IOException ..
      */
     public static TitleFullInfo getTitleFullInfo(String title) throws IOException {
-        String titlesJson = getJsonRequest(DEDICATED_REPO_URL + "/games/info/" + title);
+        String titlesJson = getJsonRequest(
+                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) + "/games/info/" + title
+        );
         return new ObjectMapper().readValue(titlesJson, TitleFullInfo.class);
     }
 
@@ -61,7 +66,9 @@ public class RequestsApi {
             return saveFilePath;
         }
 
-        HttpURLConnection con = getRawRequest(DEDICATED_REPO_URL + "/games/cover/" + title);
+        HttpURLConnection con = getRawRequest(
+                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) + "/games/cover/" + title
+        );
 
         InputStream inStream = con.getInputStream();
         FileOutputStream outputStream = new FileOutputStream(saveFilePath);
@@ -94,7 +101,10 @@ public class RequestsApi {
         String saveFilePath = buildPathString(ROMS_PATH, title, romPath);
         File f = new File(saveFilePath);
 
-        HttpURLConnection con = getRawRequest(DEDICATED_REPO_URL + "/games/rom/" + title + "/" + romPath.replace(" ", "%20"));
+        HttpURLConnection con = getRawRequest(
+                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) +
+                        "/games/rom/" + title + "/" + romPath.replace(" ", "%20")
+        );
 
         InputStream inStream = con.getInputStream();
         FileOutputStream outputStream = new FileOutputStream(saveFilePath);
