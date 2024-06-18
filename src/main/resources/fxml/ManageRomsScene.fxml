@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="551.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <SplitPane dividerPositions="0.6428571428571429" layoutX="237.0" layoutY="76.0" orientation="VERTICAL"
+                   prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                    <children>
+                        <ListView fx:id="romsListView" onMouseClicked="#handleMouseClickOnRomsListView"
+                                  prefHeight="288.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0"
+                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                    <children>
+                        <VBox layoutX="176.0" layoutY="-4.0" prefHeight="200.0" prefWidth="100.0" spacing="16.0"
+                              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                              AnchorPane.topAnchor="0.0">
+                            <children>
+                                <Label fx:id="romTitle" text="ROM title: Some ROM"/>
+                                <Label fx:id="romRegion" layoutX="26.0" layoutY="26.0" text="ROM region: Russia"/>
+                                <Label fx:id="romType" layoutX="26.0" layoutY="59.0"
+                                       text="ROM type: &quot;official&quot;"/>
+                                <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                    <children>
+                                        <Button fx:id="downloadButton" mnemonicParsing="false"
+                                                onMouseClicked="#downloadSelectedRom" text="Download"/>
+                                        <Button fx:id="deleteButton" mnemonicParsing="false"
+                                                onMouseClicked="#deleteSelectedRom" text="Delete" visible="false"/>
+                                    </children>
+                                </AnchorPane>
+                            </children>
+                            <padding>
+                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                            </padding>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+    </children>
+</AnchorPane>
