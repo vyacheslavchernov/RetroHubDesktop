@@ -10,7 +10,7 @@ import com.vych.utils.FilesUtils;
  */
 public class AppLauncher {
     public static void main(String[] args) {
-        // TODO: check return of method on existence of errors. Don't start if there any error.
+        // TODO: check return of method on existence of errors. Don't start if there is any error.
         FilesUtils.validateDirectoriesStructure();
         RetroHubApp.main(args);
     }

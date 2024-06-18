@@ -2,6 +2,7 @@
 cache/
 roms/
 emulators/
+app.sqlite
 
 target/
 !.mvn/wrapper/maven-wrapper.jar
