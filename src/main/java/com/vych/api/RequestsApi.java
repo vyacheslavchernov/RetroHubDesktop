@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vych.api.entities.Title;
 import com.vych.api.entities.TitleFullInfo;
+import com.vych.cache.AppCache;
 import com.vych.database.AppDatabase;
 
 import java.io.*;
@@ -13,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.vych.database.accessors.SettingsAccessor.REPOSITORY_IP_SETTING;
+import static com.vych.database.SettingsDefaults.REPOSITORY_IP;
 import static com.vych.utils.FilesUtils.*;
 
 /**
@@ -21,6 +22,8 @@ import static com.vych.utils.FilesUtils.*;
  */
 // TODO: Subject to full rework
 public class RequestsApi {
+
+    public final static long CACHED_REQUEST_LIFETIME_SEC = 300;
 
     /**
      * Get short information about ({@link Title}) all games existed in repository
@@ -30,7 +33,7 @@ public class RequestsApi {
      */
     public static List<Title> getAllTitles() throws IOException {
         String titlesJson = getJsonRequest(
-                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) + "/games/get_all_titles"
+                AppDatabase.getSettings().get(REPOSITORY_IP.getName()) + "/games/get_all_titles"
         );
         return new ObjectMapper().readValue(titlesJson, new TypeReference<List<Title>>() {
         });
@@ -44,8 +47,8 @@ public class RequestsApi {
      * @throws IOException ..
      */
     public static TitleFullInfo getTitleFullInfo(String title) throws IOException {
-        String titlesJson = getJsonRequest(
-                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) + "/games/info/" + title
+        String titlesJson = titlesJson = getJsonRequest(
+                AppDatabase.getSettings().get(REPOSITORY_IP.getName()) + "/games/info/" + title
         );
         return new ObjectMapper().readValue(titlesJson, TitleFullInfo.class);
     }
@@ -60,14 +63,14 @@ public class RequestsApi {
     public static String getTitleCover(String title) throws IOException {
         String saveFilePath = buildPathString(CACHE_COVERS_PATH, title + ".png");
 
-        // TODO: Add proper caching with lifetime, clearing and etc
+        // TODO: Cache covers with AppCache
         File f = new File(saveFilePath);
         if (f.exists()) {
             return saveFilePath;
         }
 
         HttpURLConnection con = getRawRequest(
-                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) + "/games/cover/" + title
+                AppDatabase.getSettings().get(REPOSITORY_IP.getName()) + "/games/cover/" + title
         );
 
         InputStream inStream = con.getInputStream();
@@ -102,7 +105,7 @@ public class RequestsApi {
         File f = new File(saveFilePath);
 
         HttpURLConnection con = getRawRequest(
-                AppDatabase.getSettings().getString(REPOSITORY_IP_SETTING) +
+                AppDatabase.getSettings().get(REPOSITORY_IP.getName()) +
                         "/games/rom/" + title + "/" + romPath.replace(" ", "%20")
         );
 
@@ -128,6 +131,11 @@ public class RequestsApi {
      * @throws IOException ..
      */
     private static String getJsonRequest(String path) throws IOException {
+        String cached = AppCache.getString(path);
+        if (cached != null) {
+            return cached;
+        }
+
         URL url = new URL(path);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -135,13 +143,14 @@ public class RequestsApi {
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
         String inputLine;
-        StringBuffer content = new StringBuffer();
+        StringBuilder content = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             content.append(inputLine);
         }
         in.close();
         con.disconnect();
 
+        AppCache.cacheString(path, content.toString(), CACHED_REQUEST_LIFETIME_SEC);
         return content.toString();
     }
 

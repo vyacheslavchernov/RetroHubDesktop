@@ -1,29 +1,23 @@
 package com.vych.database.accessors;
 
+import com.vych.database.SettingsDefaults;
 import lombok.SneakyThrows;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Accessor for settings table in local DB.
  * Provide access to it.
  */
-// TODO: interface maybe?
-public class SettingsAccessor {
+public class SettingsAccessor extends BasicAccessor {
     public final static String TABLE_NAME = "settings";
-    public final static String SETTING_COLUMN_NAME = "setting";
-    public final static String VALUE_COLUMN_NAME = "value";
-
-    public final static String REPOSITORY_IP_SETTING = "repository_ip";
-
-    private final Connection connection;
+    public final static String SETTING_COLUMN = "setting";
+    public final static String VALUE_COLUMN = "value";
 
     public SettingsAccessor(Connection connection) {
-        this.connection = connection;
-        validateDatabase();
+        super(connection);
     }
 
     /**
@@ -32,36 +26,29 @@ public class SettingsAccessor {
      * @param setting target
      * @return target setting value
      */
-    public String getString(String setting) {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format(
-                    "SELECT * FROM \"%s\" WHERE \"%s\" == \"%s\"", TABLE_NAME, SETTING_COLUMN_NAME, setting
-            ));
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                return resultSet.getString(VALUE_COLUMN_NAME);
-            }
+    public String get(String setting) {
+        List<HashMap<String, Object>> result = performQuery(
+                "SELECT * FROM \"%s\" WHERE \"%s\" == \"%s\"",
+                TABLE_NAME, SETTING_COLUMN, setting
+        );
+
+        if (result.isEmpty()) {
             return null;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
+        return (String) result.get(0).get(VALUE_COLUMN);
     }
 
     /**
-     * Get setting value in DB
+     * Set setting value in DB
      *
      * @param setting target
      * @param value   value to set
      */
-    public void setString(String setting, String value) {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format(
-                    "UPDATE \"%s\" SET \"%s\" = \"%s\" WHERE \"%s\" == \"%s\";",
-                    TABLE_NAME, VALUE_COLUMN_NAME, value, SETTING_COLUMN_NAME, setting
-            ));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public void set(String setting, String value) {
+        performQuery(
+                "UPDATE \"%s\" SET \"%s\" = \"%s\" WHERE \"%s\" == \"%s\";",
+                TABLE_NAME, VALUE_COLUMN, value, SETTING_COLUMN, setting
+        );
     }
 
     /**
@@ -69,36 +56,25 @@ public class SettingsAccessor {
      * create and filling with default values if not.
      */
     @SneakyThrows
-    private void validateDatabase() {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format(
-                    "CREATE TABLE if not exists '%s' " +
-                            "('id' INTEGER PRIMARY KEY AUTOINCREMENT, '%s' text, '%s' text);",
-                    TABLE_NAME, SETTING_COLUMN_NAME, VALUE_COLUMN_NAME
-            ));
+    public void validateDatabase() {
+        performQuery(
+                "CREATE TABLE if not exists '%s' " +
+                        "('id' INTEGER PRIMARY KEY AUTOINCREMENT, '%s' text, '%s' text);",
+                TABLE_NAME, SETTING_COLUMN, VALUE_COLUMN
+        );
 
-            statement.execute(String.format("SELECT * FROM '%s' LIMIT 1", TABLE_NAME));
-            if (!statement.getResultSet().next()) {
-                // DEFAULT VALUES HERE
-                insert(statement, REPOSITORY_IP_SETTING, "http://127.0.0.1:5000");
+        for (SettingsDefaults setting : SettingsDefaults.values()) {
+            if (
+                    performQuery(
+                            "SELECT * FROM '%s' WHERE \"%s\" == \"%s\"",
+                            TABLE_NAME, SETTING_COLUMN, setting.getName()
+                    ).isEmpty()
+            ) {
+                performQuery(
+                        "INSERT INTO '%s' ('%s', '%s') VALUES ('%s', '%s');",
+                        TABLE_NAME, SETTING_COLUMN, VALUE_COLUMN, setting.getName(), setting.getDefaultValue()
+                );
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Insert row to settings table.
-     *
-     * @param statement active connection statement
-     * @param setting   setting name
-     * @param value     setting init value
-     * @throws SQLException ..
-     */
-    private void insert(Statement statement, String setting, String value) throws SQLException {
-        statement.execute(String.format(
-                "INSERT INTO '%s' ('%s', '%s') VALUES ('%s', '%s');",
-                TABLE_NAME, SETTING_COLUMN_NAME, VALUE_COLUMN_NAME, setting, value
-        ));
     }
 }
