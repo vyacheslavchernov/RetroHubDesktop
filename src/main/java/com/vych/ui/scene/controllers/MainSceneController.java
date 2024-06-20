@@ -1,4 +1,4 @@
-package com.vych.scene.controllers;
+package com.vych.ui.scene.controllers;
 
 import com.vych.api.RequestsApi;
 import com.vych.api.entities.Title;
@@ -6,17 +6,17 @@ import com.vych.api.entities.TitleAbout;
 import com.vych.api.entities.TitleFullInfo;
 import com.vych.database.AppDatabase;
 import com.vych.database.accessors.SettingsAccessor;
+import com.vych.ui.scene.wrappers.LaunchSceneWrapper;
+import com.vych.ui.scene.wrappers.ManageRomsSceneWrapper;
+import com.vych.ui.stage.StageManager;
 import com.vych.utils.RomsUtils;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
+import lombok.SneakyThrows;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -220,32 +220,18 @@ public class MainSceneController {
      * Init scene with selected game data.
      */
     // TODO: Add logging
-    @SuppressWarnings("CallToPrintStackTrace")
+    @SneakyThrows
     private void openLaunchMenu() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LaunchRomScene.fxml"));
-            String selectedId = getListViewSelectedItem(gamesListView).getId();
-
-            if (this.titleFullInfo == null) {
-                this.titleFullInfo = RequestsApi.getTitleFullInfo(selectedId);
-            }
-
-            loader.setController(
-                    new LaunchSceneController(selectedId)
-            );
-
-            Parent root1 = loader.load();
-
-            LaunchSceneController controller = loader.getController();
-            controller.init();
-
-            Stage stage = new Stage();
-            stage.setTitle("Launch " + titleFullInfo.getAbout().getTitle());
-            stage.setScene(new Scene(root1));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
+        String selectedId = getListViewSelectedItem(gamesListView).getId();
+        if (this.titleFullInfo == null) {
+            this.titleFullInfo = RequestsApi.getTitleFullInfo(selectedId);
         }
+        StageManager.show(StageManager.add(
+                new LaunchSceneWrapper(
+                        "Launch " + titleFullInfo.getAbout().getTitle(),
+                        selectedId
+                )
+        ));
     }
 
     /**
@@ -253,31 +239,18 @@ public class MainSceneController {
      * Init scene with selected game data.
      */
     // TODO: Add logging
-    @SuppressWarnings("CallToPrintStackTrace")
+    @SneakyThrows
     private void openRomsManager() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ManageRomsScene.fxml"));
-            String selectedId = getListViewSelectedItem(gamesListView).getId();
-
-            if (this.titleFullInfo == null) {
-                this.titleFullInfo = RequestsApi.getTitleFullInfo(selectedId);
-            }
-
-            loader.setController(
-                    new ManageRomsSceneController(this.titleFullInfo.getRoms(), selectedId)
-            );
-
-            Parent root1 = loader.load();
-
-            ManageRomsSceneController controller = loader.getController();
-            controller.init();
-
-            Stage stage = new Stage();
-            stage.setTitle("ROMs manger for " + titleFullInfo.getAbout().getTitle());
-            stage.setScene(new Scene(root1));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
+        String selectedId = getListViewSelectedItem(gamesListView).getId();
+        if (this.titleFullInfo == null) {
+            this.titleFullInfo = RequestsApi.getTitleFullInfo(selectedId);
         }
+        StageManager.show(StageManager.add(
+                new ManageRomsSceneWrapper(
+                        "ROMs manager for " + titleFullInfo.getAbout().getTitle(),
+                        titleFullInfo.getRoms(),
+                        selectedId
+                )
+        ));
     }
 }

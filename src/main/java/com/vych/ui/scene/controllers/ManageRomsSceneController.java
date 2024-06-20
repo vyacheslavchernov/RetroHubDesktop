@@ -1,4 +1,4 @@
-package com.vych.scene.controllers;
+package com.vych.ui.scene.controllers;
 
 import com.vych.api.RequestsApi;
 import com.vych.api.entities.RomInfo;
@@ -25,12 +25,15 @@ import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
 /**
  * Controller for MainScene fxml scene.
  * Handle downloading and deleting ROMs for specific games.
+ * <p>
+ * YOU SHOULD CALL {@link ManageRomsSceneController#init(List, String)} METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
+ * <p>
  */
 public class ManageRomsSceneController {
 
     private int prevIndex = 0;
-    private final List<RomInfo> romInfoList;
-    private final String gameTitle;
+    private List<RomInfo> romInfoList;
+    private String gameTitle;
 
     // region: Scene components linking
     @FXML
@@ -53,24 +56,16 @@ public class ManageRomsSceneController {
     // endregion: Scene components linking
 
     /**
-     * YOU SHOULD CALL {@link ManageRomsSceneController#init()} AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
-     *
-     * @param romInfoList List of {@link RomInfo} entities with information about existed ROMs in repo for selected game
-     * @param gameTitle   Selected game dir path
-     */
-    public ManageRomsSceneController(List<RomInfo> romInfoList, String gameTitle) {
-        this.romInfoList = romInfoList;
-        this.gameTitle = gameTitle;
-    }
-
-    /**
      * YOU SHOULD CALL THIS METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
      * <p>
      * Method fill list of available ROMs to {@link ListView} in scene
      * and select added items in it and display info about it.
      * After, call method that check if any of these ROMs already downloaded and mark it
      */
-    public void init() {
+    public void init(List<RomInfo> romInfoList, String gameTitle) {
+        this.romInfoList = this.romInfoList == null ? romInfoList : this.romInfoList;
+        this.gameTitle = this.gameTitle == null ? gameTitle : this.gameTitle;
+
         ObservableList<Label> items = romsListView.getItems();
         for (RomInfo rom : romInfoList) {
             Label lbl = new Label(rom.getPath());
