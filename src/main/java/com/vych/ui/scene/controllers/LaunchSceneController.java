@@ -1,4 +1,4 @@
-package com.vych.scene.controllers;
+package com.vych.ui.scene.controllers;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,23 +17,16 @@ import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
 /**
  * Controller for LaunchRomScene fxml scene.
  * Handle run selected game from specific ROM and with specific emulator
+ * <p>
+ * YOU SHOULD CALL {@link LaunchSceneController#init(String)} METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
  */
 public class LaunchSceneController {
 
     private int prevIndex = 0;
-    private final String title;
+    private String title;
 
     @FXML
     private ListView<Label> romsListView;
-
-    /**
-     * * YOU SHOULD CALL {@link LaunchSceneController#init()} AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
-     *
-     * @param title Selected game dir path
-     */
-    public LaunchSceneController(String title) {
-        this.title = title;
-    }
 
     /**
      * YOU SHOULD CALL THIS METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
@@ -43,7 +36,9 @@ public class LaunchSceneController {
      */
     @SuppressWarnings("DataFlowIssue")
     // Scene would not be opened if at least one rom existed (same with game directory)
-    public void init() {
+    public void init(String title) {
+        this.title = this.title == null ? title : this.title;
+
         ObservableList<Label> items = romsListView.getItems();
         for (File rom : new File(buildPathString(ROMS_PATH, title)).listFiles()) {
             Label lbl = new Label(rom.getName());
