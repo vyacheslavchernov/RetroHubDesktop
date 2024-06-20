@@ -5,7 +5,6 @@ import com.vych.api.entities.Title;
 import com.vych.api.entities.TitleAbout;
 import com.vych.api.entities.TitleFullInfo;
 import com.vych.database.AppDatabase;
-import com.vych.database.accessors.SettingsAccessor;
 import com.vych.ui.scene.wrappers.LaunchSceneWrapper;
 import com.vych.ui.scene.wrappers.ManageRomsSceneWrapper;
 import com.vych.ui.stage.StageManager;
@@ -23,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.vych.database.SettingsDefaults.REPOSITORY_IP;
 import static com.vych.utils.SceneComponentsUtils.getListViewSelectedIndex;
 import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
 
@@ -78,7 +78,7 @@ public class MainSceneController {
      */
     @FXML
     public void fillSettingsFromDB() {
-        repository_ip.setText(AppDatabase.getSettings().getString(SettingsAccessor.REPOSITORY_IP_SETTING));
+        repository_ip.setText(AppDatabase.getSettings().get(REPOSITORY_IP.getName()));
     }
 
     /**
@@ -110,7 +110,7 @@ public class MainSceneController {
     @FXML
     private void saveChanges() {
         for (TextField field : touchedFields) {
-            AppDatabase.getSettings().setString(field.getId(), field.getText());
+            AppDatabase.getSettings().set(field.getId(), field.getText());
         }
         touchedFields.clear();
     }

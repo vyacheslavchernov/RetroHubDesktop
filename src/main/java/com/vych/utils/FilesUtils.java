@@ -16,8 +16,8 @@ import java.util.List;
 public class FilesUtils {
     public static final String ROMS_PATH = "roms";
     public static final String EMULATORS_PATH = "emulators";
-    public static final String CACHE_ROOT_PATH = "cache";
-    public static final String CACHE_COVERS_PATH = buildPathString("cache", "covers");
+    public static final String CACHE_ROOT_PATH = "cached";
+    public static final String CACHE_COVERS_PATH = buildPathString(CACHE_ROOT_PATH, "covers");
 
     /**
      * Check file structure of app.
