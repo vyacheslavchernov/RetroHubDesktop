@@ -14,10 +14,12 @@ import java.util.List;
  */
 @UtilityClass
 public class FilesUtils {
-    public static final String ROMS_PATH = "roms";
-    public static final String EMULATORS_PATH = "emulators";
+    public static final String DOWNLOADS_PATH = "downloads";
+    public static final String ROMS_PATH = buildPathString(DOWNLOADS_PATH, "roms");
+    public static final String EMULATORS_PATH = buildPathString(DOWNLOADS_PATH, "emulators");
+
     public static final String CACHE_ROOT_PATH = "cached";
-    public static final String CACHE_COVERS_PATH = buildPathString(CACHE_ROOT_PATH, "covers");
+    public static final String CACHE_IMAGES_PATH = buildPathString(CACHE_ROOT_PATH, "images");
 
     /**
      * Check file structure of app.
@@ -29,10 +31,10 @@ public class FilesUtils {
     @SuppressWarnings("UnusedReturnValue")
     public static List<String> validateDirectoriesStructure() {
         List<String> collectedFails = new ArrayList<>();
-        List<String> pathsToValidate = List.of(ROMS_PATH, EMULATORS_PATH, CACHE_ROOT_PATH, CACHE_COVERS_PATH);
+        List<String> pathsToValidate = List.of(DOWNLOADS_PATH, ROMS_PATH, EMULATORS_PATH, CACHE_ROOT_PATH, CACHE_IMAGES_PATH);
 
         pathsToValidate.forEach(path -> {
-            if (!Files.exists(Paths.get(path))) {
+            if (!isFileExist(path)) {
                 if (!new File(path).mkdirs()) {
                     collectedFails.add("Attempt to make direction for ROMs failed. Path " + path);
                 }
@@ -40,6 +42,16 @@ public class FilesUtils {
         });
 
         return collectedFails;
+    }
+
+    /**
+     * Check if file exist locally
+     *
+     * @param path path to file
+     * @return true if file exist, false otherwise
+     */
+    public static boolean isFileExist(String path) {
+        return Files.exists(Paths.get(path));
     }
 
     /**

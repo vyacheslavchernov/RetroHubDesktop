@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class CachedItem {
+public class CacheItem {
     private String key;
     private String value;
     private LocalDateTime expiredAfter;

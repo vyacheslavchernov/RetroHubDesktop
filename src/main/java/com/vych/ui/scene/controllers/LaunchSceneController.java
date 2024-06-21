@@ -1,5 +1,6 @@
 package com.vych.ui.scene.controllers;
 
+import com.vych.api.games.entities.Game;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,12 +19,12 @@ import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
  * Controller for LaunchRomScene fxml scene.
  * Handle run selected game from specific ROM and with specific emulator
  * <p>
- * YOU SHOULD CALL {@link LaunchSceneController#init(String)} METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
+ * YOU SHOULD CALL {@link LaunchSceneController#init(Game)} METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
  */
 public class LaunchSceneController {
 
     private int prevIndex = 0;
-    private String title;
+    private Game game;
 
     @FXML
     private ListView<Label> romsListView;
@@ -36,11 +37,11 @@ public class LaunchSceneController {
      */
     @SuppressWarnings("DataFlowIssue")
     // Scene would not be opened if at least one rom existed (same with game directory)
-    public void init(String title) {
-        this.title = this.title == null ? title : this.title;
+    public void init(Game game) {
+        this.game = this.game == null ? game : this.game;
 
         ObservableList<Label> items = romsListView.getItems();
-        for (File rom : new File(buildPathString(ROMS_PATH, title)).listFiles()) {
+        for (File rom : new File(buildPathString(ROMS_PATH, game.getId())).listFiles()) {
             Label lbl = new Label(rom.getName());
             lbl.setId(rom.getAbsolutePath());
             items.add(lbl);
@@ -71,7 +72,7 @@ public class LaunchSceneController {
     public void handleMouseClickOnLaunchButton() throws IOException {
         // actually, here only one emulator for genesis/MD by now
         Process p = Runtime.getRuntime().exec(
-                "emulators\\blastem-win32-0.6.2\\blastem.exe" +
+                "downloads\\emulators\\blastem-win32-0.6.2\\blastem.exe" +
                         " \"" + getListViewSelectedItem(romsListView).getId() + "\""
         );
     }
