@@ -1,15 +1,14 @@
-package com.vych.api.entities;
+package com.vych.api.games.entities;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Data entity.
- * Represent full information about game that was given from repo
+ * Information about game from repository.
  */
 @Getter
 @Setter
-public class TitleAbout {
+public class About {
     private String title;
     private int released;
     private String cover;

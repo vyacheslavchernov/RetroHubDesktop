@@ -1,7 +1,7 @@
 package com.vych.ui.scene.wrappers;
 
-import com.vych.api.RequestsApi;
-import com.vych.api.entities.Title;
+import com.vych.api.games.GamesApi;
+import com.vych.api.games.entities.GameTitle;
 import com.vych.ui.scene.controllers.MainSceneController;
 import com.vych.ui.stage.StageManager;
 
@@ -17,7 +17,7 @@ public class MainSceneWrapper extends SceneWrapper {
         MainSceneController controller = loader.getController();
 
         // filling titles list with data from repo
-        for (Title gameTitle : RequestsApi.getAllTitles()) {
+        for (GameTitle gameTitle : GamesApi.getAllTitles()) {
             controller.addElementToGamesListView(gameTitle);
         }
         controller.setSelectedGamesListViewElement(0);

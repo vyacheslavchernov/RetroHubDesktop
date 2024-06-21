@@ -1,7 +1,7 @@
 package com.vych.ui.scene.controllers;
 
-import com.vych.api.RequestsApi;
-import com.vych.api.entities.RomInfo;
+import com.vych.api.games.entities.Game;
+import com.vych.api.games.entities.Rom;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,11 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static com.vych.utils.FilesUtils.*;
-import static com.vych.utils.RomsUtils.checkIsRomExist;
-import static com.vych.utils.RomsUtils.getRomInfoByPath;
 import static com.vych.utils.SceneComponentsUtils.getListViewSelectedIndex;
 import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
 
@@ -26,14 +23,13 @@ import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
  * Controller for MainScene fxml scene.
  * Handle downloading and deleting ROMs for specific games.
  * <p>
- * YOU SHOULD CALL {@link ManageRomsSceneController#init(List, String)} METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
+ * YOU SHOULD CALL {@link ManageRomsSceneController#init(Game)} METHOD AFTER LOAD SCENE WITH {@link FXMLLoader#load()}
  * <p>
  */
 public class ManageRomsSceneController {
 
     private int prevIndex = 0;
-    private List<RomInfo> romInfoList;
-    private String gameTitle;
+    private Game game;
 
     // region: Scene components linking
     @FXML
@@ -62,12 +58,11 @@ public class ManageRomsSceneController {
      * and select added items in it and display info about it.
      * After, call method that check if any of these ROMs already downloaded and mark it
      */
-    public void init(List<RomInfo> romInfoList, String gameTitle) {
-        this.romInfoList = this.romInfoList == null ? romInfoList : this.romInfoList;
-        this.gameTitle = this.gameTitle == null ? gameTitle : this.gameTitle;
+    public void init(Game game) {
+        this.game = this.game == null ? game : this.game;
 
         ObservableList<Label> items = romsListView.getItems();
-        for (RomInfo rom : romInfoList) {
+        for (Rom rom : game.getRoms()) {
             Label lbl = new Label(rom.getPath());
             lbl.setTextFill(Color.RED);
             items.add(lbl);
@@ -96,22 +91,19 @@ public class ManageRomsSceneController {
      * Display info about selected ROM and manage controls based on ROM local existence
      */
     private void loadInfoAboutSelectedRomsListViewElement() {
-        RomInfo romInfo = getRomInfoByPath(
-                getListViewSelectedItem(romsListView).getText(),
-                this.romInfoList
-        );
+        Rom romInfo = game.getRomByPath(getListViewSelectedItem(romsListView).getText());
 
         // linter complain about possibility of NullPointerException
         // (it can't be happens as I see, but well, will be highlighted it otherwise)
         if (romInfo == null) {
-            romInfo = new RomInfo();
+            romInfo = new Rom();
         }
 
         romTitle.setText("Title: " + romInfo.getTitle());
         romRegion.setText("Region: " + romInfo.getRegion());
         romType.setText("Type: " + (romInfo.isOfficial() ? "official" : "unofficial"));
 
-        if (checkIsRomExist(gameTitle, romInfo.getPath())) {
+        if (game.isRomDownloaded(romInfo)) {
             downloadButton.setVisible(false);
             deleteButton.setVisible(true);
         } else {
@@ -127,8 +119,7 @@ public class ManageRomsSceneController {
      * Delete ROMs local folder if zero ROMs existed locally.
      */
     private void checkAndMarkLocalExistenceOfRoms() {
-        Path path = Paths.get(buildPathString(ROMS_PATH, gameTitle));
-        if (!Files.exists(path)) {
+        if (!game.isAnyRomDownloaded()) {
             return;
         }
 
@@ -136,7 +127,7 @@ public class ManageRomsSceneController {
         ObservableList<Label> items = romsListView.getItems();
         int lblIndex = 0;
         for (Label lbl : items) {
-            path = Paths.get(buildPathString(ROMS_PATH, gameTitle, lbl.getText()));
+            Path path = Paths.get(buildPathString(ROMS_PATH, game.getId(), lbl.getText()));
             if (Files.exists(path)) {
                 isAnyExist = true;
                 lbl.setTextFill(Color.GREEN);
@@ -156,7 +147,7 @@ public class ManageRomsSceneController {
         romsListView.setItems(items);
 
         if (!isAnyExist) {
-            deleteFile(buildPathString(ROMS_PATH, gameTitle));
+            deleteFile(buildPathString(ROMS_PATH, game.getId()));
         }
     }
 
@@ -166,7 +157,7 @@ public class ManageRomsSceneController {
      */
     @FXML
     private void deleteSelectedRom() {
-        deleteFile(buildPathString(ROMS_PATH, gameTitle, getListViewSelectedItem(romsListView).getText()));
+        deleteFile(buildPathString(ROMS_PATH, game.getId(), getListViewSelectedItem(romsListView).getText()));
         checkAndMarkLocalExistenceOfRoms();
     }
 
@@ -178,7 +169,7 @@ public class ManageRomsSceneController {
      */
     @FXML
     private void downloadSelectedRom() throws IOException {
-        RequestsApi.getRom(gameTitle, getListViewSelectedItem(romsListView).getText());
+        game.downloadRom(game.getRomByPath(getListViewSelectedItem(romsListView).getText()));
         checkAndMarkLocalExistenceOfRoms();
     }
 }

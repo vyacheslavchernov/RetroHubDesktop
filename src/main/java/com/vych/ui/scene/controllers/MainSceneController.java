@@ -1,14 +1,13 @@
 package com.vych.ui.scene.controllers;
 
-import com.vych.api.RequestsApi;
-import com.vych.api.entities.Title;
-import com.vych.api.entities.TitleAbout;
-import com.vych.api.entities.TitleFullInfo;
+import com.vych.api.games.GamesApi;
+import com.vych.api.games.entities.About;
+import com.vych.api.games.entities.Game;
+import com.vych.api.games.entities.GameTitle;
 import com.vych.database.AppDatabase;
 import com.vych.ui.scene.wrappers.LaunchSceneWrapper;
 import com.vych.ui.scene.wrappers.ManageRomsSceneWrapper;
 import com.vych.ui.stage.StageManager;
-import com.vych.utils.RomsUtils;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -33,7 +32,7 @@ import static com.vych.utils.SceneComponentsUtils.getListViewSelectedItem;
 public class MainSceneController {
 
     private int prevIndex = -1;
-    private TitleFullInfo titleFullInfo = null;
+    private Game selectedGame = null;
     private List<TextField> touchedFields = new ArrayList<>();
 
     // region: Scene components linking
@@ -120,10 +119,10 @@ public class MainSceneController {
      *
      * @param element title to add
      */
-    public void addElementToGamesListView(Title element) {
+    public void addElementToGamesListView(GameTitle element) {
         ObservableList<Label> items = gamesListView.getItems();
         Label lbl = new Label(element.getTitle());
-        lbl.setId(element.getPath());
+        lbl.setId(element.getId());
         items.add(lbl);
         gamesListView.setItems(items);
     }
@@ -149,13 +148,13 @@ public class MainSceneController {
      * @throws IOException ..
      */
     public void loadInfoAboutSelectedGameListViewElement() throws IOException {
-        Label item = getListViewSelectedItem(gamesListView);
-        this.titleFullInfo = RequestsApi.getTitleFullInfo(item.getId());
-        String coverPath = RequestsApi.getTitleCover(item.getId());
+        this.selectedGame = GamesApi.getGame(
+                getListViewSelectedItem(gamesListView).getId()
+        );
 
-        selectedGameCover.setImage(new Image(new FileInputStream(coverPath)));
+        selectedGameCover.setImage(new Image(new FileInputStream(selectedGame.getCover())));
 
-        TitleAbout about = this.titleFullInfo.getAbout();
+        About about = this.selectedGame.getAbout();
         selectedGameTitle.setText(about.getTitle());
         selectedGamePlatform.setText("Platform: " + about.getPlatform());
         selectedGameRelease.setText("Released: " + about.getReleased());
@@ -195,7 +194,7 @@ public class MainSceneController {
      */
     @FXML
     private void handlePlayButton() {
-        if (!RomsUtils.checkIsAnyRomExist(gamesListView.getSelectionModel().getSelectedItem().getId())) {
+        if (!selectedGame.isAnyRomDownloaded()) {
             // TODO: maybe some sort of builder for alerts?
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Can't play right now");
@@ -223,13 +222,13 @@ public class MainSceneController {
     @SneakyThrows
     private void openLaunchMenu() {
         String selectedId = getListViewSelectedItem(gamesListView).getId();
-        if (this.titleFullInfo == null) {
-            this.titleFullInfo = RequestsApi.getTitleFullInfo(selectedId);
+        if (this.selectedGame == null) {
+            this.selectedGame = GamesApi.getGame(selectedId);
         }
         StageManager.show(StageManager.add(
                 new LaunchSceneWrapper(
-                        "Launch " + titleFullInfo.getAbout().getTitle(),
-                        selectedId
+                        "Launch " + selectedGame.getAbout().getTitle(),
+                        selectedGame
                 )
         ));
     }
@@ -242,13 +241,13 @@ public class MainSceneController {
     @SneakyThrows
     private void openRomsManager() {
         String selectedId = getListViewSelectedItem(gamesListView).getId();
-        if (this.titleFullInfo == null) {
-            this.titleFullInfo = RequestsApi.getTitleFullInfo(selectedId);
+        if (this.selectedGame == null) {
+            this.selectedGame = GamesApi.getGame(selectedId);
         }
         StageManager.show(StageManager.add(
                 new ManageRomsSceneWrapper(
-                        "ROMs manager for " + titleFullInfo.getAbout().getTitle(),
-                        titleFullInfo.getRoms(),
+                        "ROMs manager for " + selectedGame.getAbout().getTitle(),
+                        selectedGame,
                         selectedId
                 )
         ));

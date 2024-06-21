@@ -1,6 +1,7 @@
 package com.vych.database.accessors;
 
-import com.vych.cache.CachedItem;
+import com.vych.cache.CacheItem;
+import com.vych.cache.CacheType;
 import lombok.SneakyThrows;
 
 import java.sql.Connection;
@@ -13,7 +14,8 @@ import java.util.List;
  * Provide access to it.
  */
 public class CacheAccessor extends BasicAccessor {
-    public final static String TABLE_NAME = "cache";
+    public final static String REQUESTS_TABLE_NAME = "cached_requests";
+    public final static String IMAGES_TABLE_NAME = "cached_images";
     public final static String KEY_COLUMN = "key";
     public final static String VALUE_COLUMN = "value";
     public final static String EXPIRED_AFTER_COLUMN = "expired_after";
@@ -23,55 +25,58 @@ public class CacheAccessor extends BasicAccessor {
     }
 
     /**
-     * Get cached value from DB
+     * Get cached value from specific table from DB
      *
-     * @param key target
+     * @param key  target
+     * @param type target item type
      * @return target setting value
      */
-    public CachedItem get(String key) {
+    public CacheItem get(String key, CacheType type) {
         List<HashMap<String, Object>> result = performQuery(
                 "SELECT * FROM \"%s\" WHERE \"%s\" == \"%s\"",
-                TABLE_NAME, KEY_COLUMN, key
+                getTargetTable(type), KEY_COLUMN, key
         );
 
         if (result.isEmpty()) {
             return null;
         }
 
-        return new CachedItem()
+        return new CacheItem()
                 .setKey((String) result.get(0).get(KEY_COLUMN))
                 .setValue((String) result.get(0).get(VALUE_COLUMN))
                 .setExpiredAfter(LocalDateTime.parse((String) result.get(0).get(EXPIRED_AFTER_COLUMN)));
     }
 
     /**
-     * Add cached value to DB
+     * Add cached value to specific table in DB
      *
      * @param item item to add
+     * @param type target item type
      */
-    public void add(CachedItem item) {
+    public void add(CacheItem item, CacheType type) {
         performQuery(
                 "INSERT INTO '%s' ('%s', '%s', '%s') VALUES ('%s', '%s', '%s');",
-                TABLE_NAME, KEY_COLUMN, VALUE_COLUMN, EXPIRED_AFTER_COLUMN,
+                getTargetTable(type), KEY_COLUMN, VALUE_COLUMN, EXPIRED_AFTER_COLUMN,
                 item.getKey(), item.getValue(), item.getExpiredAfter().toString()
         );
     }
 
     /**
-     * Remove cached value from DB
+     * Remove cached value from specific table in DB
      *
-     * @param key item key to remove
+     * @param key  item key to remove
+     * @param type target item type
      */
-    public void remove(String key) {
+    public void remove(String key, CacheType type) {
         performQuery(
                 "DELETE FROM \"%s\" WHERE \"%s\" == \"%s\"",
-                TABLE_NAME, KEY_COLUMN, key
+                getTargetTable(type), KEY_COLUMN, key
         );
     }
 
 
     /**
-     * Check existence of settings table in DB,
+     * Check existence of cache tables in DB,
      * create and filling with default values if not.
      */
     @SneakyThrows
@@ -79,7 +84,26 @@ public class CacheAccessor extends BasicAccessor {
         performQuery(
                 "CREATE TABLE if not exists '%s' " +
                         "('id' INTEGER PRIMARY KEY AUTOINCREMENT, '%s' text, '%s' text, '%s' text);",
-                TABLE_NAME, KEY_COLUMN, VALUE_COLUMN, EXPIRED_AFTER_COLUMN
+                REQUESTS_TABLE_NAME, KEY_COLUMN, VALUE_COLUMN, EXPIRED_AFTER_COLUMN
         );
+
+        performQuery(
+                "CREATE TABLE if not exists '%s' " +
+                        "('id' INTEGER PRIMARY KEY AUTOINCREMENT, '%s' text, '%s' text, '%s' text);",
+                IMAGES_TABLE_NAME, KEY_COLUMN, VALUE_COLUMN, EXPIRED_AFTER_COLUMN
+        );
+    }
+
+    /**
+     * Get cache table name based on cached item type
+     *
+     * @param type cached item type
+     * @return target table name
+     */
+    private String getTargetTable(CacheType type) {
+        return switch (type) {
+            case REQUEST -> REQUESTS_TABLE_NAME;
+            case IMAGE -> IMAGES_TABLE_NAME;
+        };
     }
 }

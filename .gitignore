@@ -1,7 +1,6 @@
 ### Work files ###
 cached/
-roms/
-emulators/
+downloads/
 app.sqlite
 
 target/
