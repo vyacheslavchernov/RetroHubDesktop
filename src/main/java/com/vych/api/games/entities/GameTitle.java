@@ -1,5 +1,6 @@
 package com.vych.api.games.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +12,7 @@ import lombok.Setter;
 public class GameTitle {
     private String title;
     private String id;
+
+    @JsonIgnore
+    private String cover;
 }

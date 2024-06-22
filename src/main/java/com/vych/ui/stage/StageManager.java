@@ -1,6 +1,6 @@
 package com.vych.ui.stage;
 
-import com.vych.ui.scene.wrappers.SceneWrapper;
+import com.vych.ui.scene.SceneWrapper;
 import javafx.stage.Stage;
 
 import java.util.HashMap;

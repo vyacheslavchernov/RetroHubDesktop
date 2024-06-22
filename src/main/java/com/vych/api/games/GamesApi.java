@@ -21,6 +21,12 @@ import static com.vych.database.SettingsDefaults.REPOSITORY_IP;
 public class GamesApi {
     private static final HashMap<String, Game> loadedGames = new HashMap<>();
 
+    /**
+     * Get game from repo by ID.
+     *
+     * @param id game id
+     * @return instance of requested game
+     */
     public static Game getGame(String id) {
         if (loadedGames.containsKey(id)) {
             return loadedGames.get(id).updateInfo();
@@ -30,6 +36,11 @@ public class GamesApi {
         return loadedGames.get(id);
     }
 
+    /**
+     * Get list of all available in repo titles
+     *
+     * @return list of titles
+     */
     public static List<GameTitle> getAllTitles() {
         RequestTemplate rqTemplate = RequestApi.getInstance().getRequestBuilder()
                 .setPath(AppDatabase.getSettings().get(REPOSITORY_IP.getName()) + "/games/get_all_titles")
@@ -39,5 +50,15 @@ public class GamesApi {
 
         return result.getParsed(new TypeReference<List<GameTitle>>() {
         });
+    }
+
+    /**
+     * Get cover art for specific game in repo
+     *
+     * @param id game id
+     * @return path to cover art file
+     */
+    public static String getCoverArt(String id) {
+        return getGame(id).getCover();
     }
 }

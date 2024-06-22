@@ -1,4 +1,4 @@
-package com.vych.ui.scene.wrappers;
+package com.vych.ui.scene;
 
 import com.vych.ui.stage.StageManager;
 import javafx.fxml.FXMLLoader;

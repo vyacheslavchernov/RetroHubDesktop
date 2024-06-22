@@ -1,174 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="747.0" prefWidth="1095.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.vych.ui.scene.controllers.MainSceneController">
-    <children>
-        <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <tabs>
-                <Tab text="Library">
-                    <content>
-                        <AnchorPane minHeight="-Infinity" minWidth="0.0" prefWidth="200.0">
-                            <children>
-                                <SplitPane dividerPositions="0.19030192131747484" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <items>
-                                        <AnchorPane maxWidth="264.0" minHeight="0.0" minWidth="164.0">
-                                            <children>
-                                            <TextField maxHeight="32.0" promptText="Search" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                <ListView fx:id="gamesListView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#handleMouseClickOnGamesListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0" />
-                                            </children>
-                                            <padding>
-                                                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                            </padding>
-                                        </AnchorPane>
-                                        <AnchorPane>
-                                            <children>
-                                                <GridPane vgap="32.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                    <columnConstraints>
-                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                    </columnConstraints>
-                                                    <rowConstraints>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                    </rowConstraints>
-                                                    <padding>
-                                                        <Insets bottom="64.0" left="64.0" right="64.0" top="64.0" />
-                                                    </padding>
-                                                    <children>
-                                                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="16.0">
-                                                            <children>
-                                                                <ImageView fx:id="selectedGameCover" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                                                                    <image>
-                                                                        <Image url="@../graphics/joystick.jpg" />
-                                                                    </image>
-                                                                </ImageView>
-                                                                <VBox spacing="4.0">
-                                                                    <children>
-                                                                        <Label fx:id="selectedGameTitle" text="Some Game From NES">
-                                                                            <font>
-                                                                                <Font size="30.0" />
-                                                                            </font>
-                                                                        </Label>
-                                                                        <HBox spacing="16.0">
-                                                                            <children>
-                                                                                <Label fx:id="selectedGamePlatform" text="Platform: NES">
-                                                                                    <font>
-                                                                                        <Font size="15.0" />
-                                                                                    </font>
-                                                                                </Label>
-                                                                                <Label fx:id="selectedGameRelease" layoutX="10.0" layoutY="10.0" text="Released: 19XX">
-                                                                                    <font>
-                                                                                        <Font size="15.0" />
-                                                                                    </font>
-                                                                                </Label>
-                                                                                <Label fx:id="selectedGameDeveloper" layoutX="117.0" layoutY="10.0" text="Developer: Nintendo">
-                                                                                    <font>
-                                                                                        <Font size="15.0" />
-                                                                                    </font>
-                                                                                </Label>
-                                                                            </children>
-                                                                        </HBox>
-                                                                        <HBox layoutX="10.0" layoutY="59.0" spacing="16.0">
-                                                                            <children>
-                                                                                <Label fx:id="selectedGamePlayers" text="Players: 1">
-                                                                                    <font>
-                                                                                        <Font size="15.0" />
-                                                                                    </font>
-                                                                                </Label>
-                                                                                <Label fx:id="selectedGameRating" layoutX="10.0" layoutY="10.0" text="Rating: 10/10">
-                                                                                    <font>
-                                                                                        <Font size="15.0" />
-                                                                                    </font>
-                                                                                </Label>
-                                                                            </children>
-                                                                        </HBox>
-                                                                        <Label text="Playtime: 1337 h" visible="false" />
-                                                                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="16.0">
-                                                                            <children>
-                                                                                <Button fx:id="playButton" mnemonicParsing="false" onMouseClicked="#handlePlayButton" text="Play" />
-                                                                                <MenuButton mnemonicParsing="false" text="Manage">
-                                                                                    <items>
-                                                                                        <MenuItem mnemonicParsing="false" onAction="#pressManageRomsButton" text="Manage ROMs" />
-                                                                                        <MenuItem disable="true" mnemonicParsing="false" text="Manage platform emulators" />
-                                                                                    </items>
-                                                                                </MenuButton>
-                                                                            </children>
-                                                                        </HBox>
-                                                                    </children>
-                                                                </VBox>
-                                                            </children>
-                                                            <padding>
-                                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                                            </padding>
-                                                        </HBox>
-                                                        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-                                                            <children>
-                                                                <TextArea fx:id="descriptionArea" editable="false" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true">
-                                                                    <cursor>
-                                                                        <Cursor fx:constant="DEFAULT" />
-                                                                    </cursor>
-                                                                </TextArea>
-                                                            </children>
-                                                            <opaqueInsets>
-                                                                <Insets top="64.0" />
-                                                            </opaqueInsets>
-                                                        </VBox>
-                                                    </children>
-                                                </GridPane>
-                                            </children>
-                                        </AnchorPane>
-                                    </items>
-                                </SplitPane>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
-                <Tab onSelectionChanged="#fillSettingsFromDB" text="Settings">
-                    <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                            <children>
-                                <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <content>
-                                        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-                                            <children>
-                                                <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                    <children>
-                                                        <VBox prefHeight="200.0" prefWidth="100.0" spacing="8.0">
-                                                            <children>
-                                                <VBox>
-                                                   <children>
-                                                                      <Label text="Repository server IP" />
-                                                                      <TextField fx:id="repository_ip" onKeyPressed="#handleSettingsFields" />
-                                                   </children>
-                                                </VBox>
-                                                            </children>
-                                                        </VBox>
-                                                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="8.0">
-                                                            <children>
-                                                                <Button maxWidth="200.0" mnemonicParsing="false" onAction="#revertChanges" text="Revert changes" />
-                                                                <Button maxWidth="200.0" mnemonicParsing="false" onAction="#saveChanges" text="Save" />
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                    <padding>
-                                                        <Insets bottom="64.0" left="64.0" right="64.0" top="64.0" />
-                                                    </padding>
-                                                </VBox>
-                                            </children>
-                                        </AnchorPane>
-                                    </content>
-                                </ScrollPane>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
-            </tabs>
-        </TabPane>
-    </children>
+<AnchorPane prefHeight="720.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.vych.ui.scene.main.MainSceneController">
+   <children>
+      <SplitPane dividerPositions="0.2964774951076321" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane maxWidth="-Infinity" minWidth="200.0" prefWidth="300.0">
+               <children>
+                  <ListView fx:id="titlesList" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
 </AnchorPane>
